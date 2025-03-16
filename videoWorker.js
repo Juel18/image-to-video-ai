@@ -10,9 +10,10 @@ self.onmessage = async function (e) {
     mediaRecorder.ondataavailable = (event) => chunks.push(event.data);
     mediaRecorder.start();
 
-    for (let img of images) {
-        self.postMessage({ status: "Processing frame..." });
-        const image = await loadImage(img);
+    for (let i = 0; i < images.length; i++) {
+        self.postMessage({ status: "Processing frame...", frame: i + 1 });
+
+        const image = await loadImage(images[i]);
         ctx.drawImage(image, 0, 0, 800, 600);
         await new Promise(r => setTimeout(r, 1000 / fps));
     }
