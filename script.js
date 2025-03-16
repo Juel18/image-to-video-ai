@@ -1,6 +1,6 @@
 const worker = new Worker('videoWorker.js');
 
-async function generateVideo() {
+function generateVideo() {
     const images = document.getElementById('imageInput').files;
     if (images.length === 0) {
         alert("Please select images.");
@@ -9,38 +9,25 @@ async function generateVideo() {
 
     let imageURLs = [];
     for (let img of images) {
-        const imgURL = URL.createObjectURL(img);
-        imageURLs.push(imgURL);
+        imageURLs.push(URL.createObjectURL(img));
     }
+
+    document.getElementById("progressBar").value = 0;
+    document.getElementById("progressText").innerText = "Processing... 0%";
 
     worker.postMessage({ images: imageURLs, fps: 5 });
 
     worker.onmessage = function (e) {
-        if (e.data.status === "Done") {
+        if (e.data.status === "Processing frame...") {
+            let progress = Math.floor((e.data.frame / imageURLs.length) * 100);
+            document.getElementById("progressBar").value = progress;
+            document.getElementById("progressText").innerText = `Processing... ${progress}%`;
+        } else if (e.data.status === "Done") {
+            document.getElementById("progressBar").value = 100;
+            document.getElementById("progressText").innerText = "Completed!";
+            
             const webmURL = URL.createObjectURL(e.data.video);
             document.getElementById("outputVideo").src = webmURL;
-            convertToMP4(e.data.video);
         }
     };
-}
-
-async function convertToMP4(webmBlob) {
-    const { createFFmpeg, fetchFile } = FFmpeg;
-    const ffmpeg = createFFmpeg({ log: true });
-
-    await ffmpeg.load();
-    ffmpeg.FS('writeFile', 'input.webm', await fetchFile(webmBlob));
-
-    await ffmpeg.run('-i', 'input.webm', 'output.mp4');
-
-    const mp4Data = ffmpeg.FS('readFile', 'output.mp4');
-    const mp4Blob = new Blob([mp4Data.buffer], { type: 'video/mp4' });
-
-    const mp4URL = URL.createObjectURL(mp4Blob);
-    document.getElementById("outputVideo").src = mp4URL;
-
-    const downloadLink = document.getElementById("downloadLink");
-    downloadLink.href = mp4URL;
-    downloadLink.download = "output.mp4";
-    downloadLink.style.display = "block";
 }
