@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Video AI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@latest"></script>
+</head>
+<body>
+    <h1>Image to Video AI</h1>
+    
+    <input type="file" id="imageInput" multiple accept="image/*">
+    <button onclick="generateVideo()">Generate Video</button>
+    
+    <h3>Preview:</h3>
+    <video id="outputVideo" controls></video>
+    
+    <a id="downloadLink" style="display: none;">Download MP4</a>
+
+    <script src="script.js"></script>
+</body>
+</html>
